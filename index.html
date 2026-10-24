@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>À Vista ou a Prazo? — Simulador</title>
+<link rel="icon" href="https://i.imgur.com/fXTgHar.png">
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--tx:#1b1f27;--mut:#667085;--bd:#dfe3ea;--pri:#0f766e;--ok:#047857;--bad:#b42318}
+@media(prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--tx:#e8ebf0;--mut:#98a2b3;--bd:#2c3340;--pri:#ff0000;--ok:#34d399;--bad:#f87171}}
+*{box-sizing:border-box}
+body{margin:0;font:20px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+.logo{display:block;max-width:200px;max-height:90px;height:auto;margin:0 auto 12px}
+h1{font-size:1.6rem;margin:8px 0 4px}
+p.sub{color:var(--mut);margin:0 0 20px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:1rem;margin:0 0 12px}
+label{display:block;font-size:.85rem;color:var(--mut);margin:10px 0 4px}
+input,select{width:100%;padding:10px 12px;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chk{display:flex;gap:8px;align-items:center;margin-top:12px;color:var(--tx);font-size:.95rem}
+.chk input{width:auto}
+button{width:100%;padding:14px;font:inherit;font-weight:600;background:var(--pri);color:#fff;border:0;border-radius:10px;cursor:pointer}
+@media(prefers-color-scheme:dark){button{color:#ffffff}}
+#res{display:none}
+.big{font-size:1.25rem;font-weight:700;margin:0 0 8px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:.93rem;margin-top:8px}
+td{padding:7px 0;border-bottom:1px solid var(--bd)}td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.note{font-size:.8rem;color:var(--mut);margin-top:16px}
+.hide{display:none}
+.chart{margin-top:14px}
+.chart svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.chart text{fill:var(--mut);font-size:11px}
+.lg{display:flex;flex-wrap:wrap;gap:14px;font-size:.82rem;color:var(--mut);margin:0 0 6px}
+.lg i{display:inline-block;width:18px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+#chartRd{font-size:.88rem;margin:6px 0 0;min-height:2.6em}
+</style>
+</head>
+<body>
+<main>
+<img class="logo" src="https://i.imgur.com/0q1ACxx.png" alt="Logo">
+<h1>À Vista ou a Prazo?</h1>
+<p class="sub">Descubra qual opção deixa mais dinheiro no seu bolso, considerando o rendimento do seu investimento.</p>
+
+<section>
+<h2>💰 Valor da compra</h2>
+<label for="preco">Preço sem desconto (R$)</label>
+<input id="preco" class="dec" type="text" inputmode="decimal" autocomplete="off" value="1.000,00">
+</section>
+
+<section>
+<h2>🏷️ Pagamento à vista</h2>
+<label for="modoV">Como você informa o valor à vista?</label>
+<select id="modoV"><option value="val" selected>Preço à vista em R$</option><option value="pct">Desconto em %</option></select>
+<label for="vista" id="lVista">Preço à vista (R$)</label>
+<input id="vista" class="dec" type="text" inputmode="decimal" autocomplete="off" value="950,00">
+</section>
+
+<section>
+<h2>📅 Pagamento a prazo</h2>
+<div class="row">
+<div><label for="n">Nº de parcelas</label><input id="n" type="number" inputmode="numeric" min="1" max="120" value="10"></div>
+<div><label for="juros">Juros (% ao mês)</label><input id="juros" class="dec" type="text" inputmode="decimal" autocomplete="off" value="0"></div>
+</div>
+<div class="row">
+<div><label for="entrada">Entrada (%)</label><input id="entrada" class="dec" type="text" inputmode="decimal" autocomplete="off" value="0"></div>
+<div></div>
+</div>
+</section>
+
+<section>
+<h2>📈 Onde você guarda seu dinheiro</h2>
+<label for="inv">Aplicação</label>
+<select id="inv">
+<option value="none">Não aplico meu dinheiro</option>
+<option value="poup">Poupança</option>
+<option value="lft">Tesouro Selic</option>
+<option value="cdb80">CDB 80% do CDI</option>
+<option value="cdb100" selected>CDB 100% do CDI</option>
+<option value="custom">Personalizar</option>
+</select>
+<div class="row">
+<div><label for="selic">Selic (% a.a.)</label><input id="selic" class="dec" type="text" inputmode="decimal" autocomplete="off" value="14,50"></div>
+<div><label for="cdi">CDI (% a.a.)</label><input id="cdi" class="dec" type="text" inputmode="decimal" autocomplete="off" value="14,40"></div>
+</div>
+<div id="custom" class="hide">
+<label for="rend">Rendimento bruto (% a.a.)</label>
+<input id="rend" class="dec" type="text" inputmode="decimal" autocomplete="off" value="12">
+<div class="chk"><input type="checkbox" id="ir" checked><label for="ir" style="margin:0;color:inherit">Cobrar IR regressivo (22,5% a 15%)</label></div>
+</div>
+<p class="note" id="rateSt" style="margin-top:8px">Buscando Selic e CDI no Banco Central…</p>
+</section>
+
+<button id="go">QUAL VALE A PENA? →</button>
+
+<section id="res" style="margin-top:14px"></section>
+
+<p class="note">Premissas: o dinheiro está disponível hoje e fica aplicado com liquidez diária; as parcelas saem do resgate dessa aplicação, mês a mês. Usa-se o mês de 30 dias para o IR, e taxas de custódia são ignoradas. Taxas futuras não variam. É uma estimativa para apoiar a decisão, não uma recomendação financeira.</p>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const num=id=>{let v=$(id).value.trim().replace(/\s|R\$/g,'');
+  if(v.includes(','))v=v.replace(/\./g,'').replace(',','.');
+  else if(/^\d{1,3}(\.\d{3})+$/.test(v))v=v.replace(/\./g,'');
+  return parseFloat(v);};
+const fmt2=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const pc=v=>v.toLocaleString('pt-BR',{maximumFractionDigits:2})+'%';
+const irRate=d=>d<=180?.225:d<=360?.20:d<=720?.175:.15;
+
+function annualRate(){
+  const t=$('inv').value,s=num('selic')/100,c=num('cdi')/100;
+  if(t==='none')return{a:0,ir:false};
+  if(t==='poup')return{a:s>0.085?Math.pow(1.005,12)*(1+0.0617*0)-1:s*0.7,ir:false};
+  if(t==='lft')return{a:s,ir:true};
+  if(t==='cdb80')return{a:c*.8,ir:true};
+  if(t==='cdb100')return{a:c,ir:true};
+  return{a:num('rend')/100,ir:$('ir').checked};
+}
+
+function simulate(cashPrice,entry,pmt,n,rm,ir){
+  let B=cashPrice-entry,K=B;
+  const net=(t)=>{const r=ir?irRate(t*30):0;return B>K?B-r*(B-K):B;};
+  const S=[B];
+  for(let t=1;t<=n;t++){
+    B*=1+rm;
+    const g=B>K&&B>0?(B-K)/B:0;
+    const r=ir?irRate(t*30):0;
+    const X=pmt/(1-g*r);
+    const before=B;B-=X;
+    if(before>0)K*=Math.max(B,0)/before;
+    S.push(net(t));
+  }
+  return S;
+}
+
+function implicitRate(cash,entry,pmt,n){
+  const pv=cash-entry;if(pv<=0||pmt*n<=pv)return 0;
+  let lo=0,hi=1;
+  for(let i=0;i<80;i++){
+    const m=(lo+hi)/2;
+    const val=m===0?pmt*n:pmt*(1-Math.pow(1+m,-n))/m;
+    val>pv?lo=m:hi=m;
+  }
+  return (lo+hi)/2;
+}
+
+function drawChart(S,n){
+  const W=600,H=300,L=66,R=14,T=14,Bm=34;
+  let mn=Math.min(0,...S),mx=Math.max(0,...S);
+  if(mx-mn<1){mx+=1;mn-=1;}
+  const raw=(mx-mn)/4,mag=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/mag;
+  const step=(f<=1?1:f<=2?2:f<=5?5:10)*mag;
+  const lo=Math.floor(mn/step+1e-9)*step,hi=Math.ceil(mx/step-1e-9)*step;
+  const x=t=>L+(n===0?0:t/n)*(W-L-R);
+  const y=v=>T+(hi-v)/(hi-lo)*(H-T-Bm);
+  const short=v=>'R$ '+(Math.abs(v)>=1000?(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':v.toLocaleString('pt-BR',{maximumFractionDigits:0}));
+  let g='';
+  for(let v=lo;v<=hi+step/2;v+=step){
+    const yy=y(v).toFixed(1),z=Math.abs(v)<step/1000;
+    g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="var(--bd)" stroke-width="${z?1.6:1}"/><text x="${L-6}" y="${(+yy+4)}" text-anchor="end">${short(z?0:v)}</text>`;
+  }
+  const xs=Math.max(1,Math.ceil(n/6));let xl='';
+  for(let t=0;t<=n;t+=xs){xl+=`<text x="${x(t).toFixed(1)}" y="${H-Bm+16}" text-anchor="middle">${t}</text>`;}
+  if(n%xs!==0)xl+=`<text x="${x(n).toFixed(1)}" y="${H-Bm+16}" text-anchor="middle">${n}</text>`;
+  xl+=`<text x="${((L+W-R)/2).toFixed(0)}" y="${H-2}" text-anchor="middle">meses</text>`;
+  const pts=S.map((v,t)=>(t?'L':'M')+x(t).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+  $('chartBox').innerHTML=`
+  <div class="lg"><span><i style="border-color:var(--pri)"></i>A prazo (saldo líquido que sobra)</span><span><i style="border-color:var(--mut);border-top-style:dashed"></i>À vista (dinheiro usado hoje)</span></div>
+  <svg viewBox="0 0 ${W} ${H}" id="chartSvg" role="img" aria-label="Evolução mensal do saldo: à vista versus a prazo">
+    ${g}${xl}
+    <line x1="${L}" x2="${W-R}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}" stroke="var(--mut)" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <path d="${pts}" fill="none" stroke="var(--pri)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <line id="cur" y1="${T}" y2="${H-Bm}" stroke="var(--mut)" stroke-width="1" stroke-dasharray="3 3"/>
+    <circle id="dot" r="5" fill="var(--pri)" stroke="var(--card)" stroke-width="2"/>
+  </svg>
+  <p id="chartRd"></p>`;
+  const svg=$('chartSvg'),rd=$('chartRd');
+  const show=t=>{
+    const v=S[t];
+    $('cur').setAttribute('x1',x(t));$('cur').setAttribute('x2',x(t));
+    $('dot').setAttribute('cx',x(t));$('dot').setAttribute('cy',y(v));
+    rd.innerHTML=`<b>Mês ${t}</b> — À vista: <b>${brl(0)}</b> · A prazo: <b class="${v>=0?'ok':'bad'}">${brl(v)}</b>`;
+  };
+  const move=e=>{
+    const r=svg.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*W;
+    show(Math.min(n,Math.max(0,Math.round((px-L)/(W-L-R)*n))));
+  };
+  svg.addEventListener('pointermove',move);svg.addEventListener('pointerdown',move);
+  show(n);
+}
+
+function calc(){
+  const P=num('preco'),n=Math.max(1,Math.round(+$('n').value));
+  const i=num('juros')/100,e=num('entrada')/100;
+  if(!(P>0)){alert('Informe o preço da compra.');return;}
+  const cash=$('modoV').value==='pct'?P*(1-(num('vista')||0)/100):num('vista');
+  if(!(cash>0)){alert('Informe um valor à vista válido.');return;}
+  const entry=P*e,fin=P-entry;
+  const pmt=i>0?fin*i/(1-Math.pow(1+i,-n)):fin/n;
+  const total=entry+pmt*n;
+  const {a,ir}=annualRate(),rm=Math.pow(1+a,1/12)-1;
+  const sim=simulate(cash,entry,pmt,n,rm,ir);
+  const left=sim[n];
+  const impl=implicitRate(cash,entry,pmt,n);
+  const win=left>=0;
+  const res=$('res');
+  res.style.display='block';
+  res.innerHTML=`
+  <p class="big ${win?'ok':'bad'}">${win?'✅ Vale mais a pena parcelar':'✅ Vale mais a pena pagar à vista'}</p>
+  <p style="margin:0 0 8px">${win
+    ?`Parcelando, você termina com <b>${brl(left)}</b> a mais no bolso ao final de ${n} meses.`
+    :`Parcelando, faltariam <b>${brl(-left)}</b> ao final de ${n} meses. À vista, você economiza esse valor.`}</p>
+  <table>
+  <tr><td>Preço à vista</td><td>${brl(cash)}</td></tr>
+  <tr><td>Entrada (hoje)</td><td>${brl(entry)}</td></tr>
+  <tr><td>${n}x de</td><td>${brl(pmt)}</td></tr>
+  <tr><td>Total a prazo</td><td>${brl(total)}</td></tr>
+  <tr><td>Juros embutidos no parcelamento (a.m.)</td><td>${pc(impl*100)}</td></tr>
+  <tr><td>Rendimento da aplicação (a.a., bruto)</td><td>${pc(a*100)}</td></tr>
+  </table>
+  <div class="chart" id="chartBox"></div>
+  <p class="note">Regra prática: se o juros embutido for maior que o rendimento líquido da sua aplicação, pague à vista.</p>`;
+  drawChart(sim,n);
+  res.scrollIntoView({behavior:'smooth'});
+}
+
+document.querySelectorAll('.dec').forEach(el=>el.addEventListener('input',()=>{el.value=el.value.replace(/[^\d.,]/g,'');}));
+['preco','vista'].forEach(id=>$(id).addEventListener('blur',()=>{
+  if(id==='vista'&&$('modoV').value==='pct')return;
+  const v=num(id);if(!isNaN(v))$(id).value=fmt2(v);}));
+
+async function loadRates(){
+  const st=$('rateSt');
+  const get=async c=>{
+    const r=await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.'+c+'/dados/ultimos/1?formato=json');
+    if(!r.ok)throw new Error(r.status);
+    return (await r.json())[0];
+  };
+  try{
+    const [s,c]=await Promise.all([get(432),get(4389)]);
+    $('selic').value=fmt2(parseFloat(s.valor));
+    $('cdi').value=fmt2(parseFloat(c.valor));
+    st.textContent='Taxas do Banco Central: Selic de '+s.data+' e CDI de '+c.data+'. Você pode editar se quiser.';
+  }catch(e){
+    st.textContent='Não consegui buscar as taxas automaticamente. Confira Selic e CDI e ajuste manualmente.';
+  }
+}
+loadRates();
+
+$('go').onclick=calc;
+$('modoV').onchange=()=>{const p=$('modoV').value==='pct';$('lVista').textContent=p?'Desconto (%)':'Preço à vista (R$)';$('vista').value=p?'5':'950,00';};
+$('inv').onchange=()=>$('custom').classList.toggle('hide',$('inv').value!=='custom');
+</script>
+</body>
+</html>
